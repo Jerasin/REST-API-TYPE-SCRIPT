@@ -59,6 +59,12 @@ router.post('/create', authorizationAdmin, async (req: Request, res: Response) =
 router.put(`/update/:id`, authorizationAdmin, async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
+        const {updatedBy} = req.body;
+
+        if (!updatedBy){
+            return res.json({ status: 200, result: "Not Found UpdatedBy from Request" })
+        }
+
         const result = await productInstance.findOne({ where: { id } });
 
         if (!result) {

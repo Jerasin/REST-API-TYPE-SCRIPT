@@ -26,7 +26,7 @@ export const authorizationAdmin = ((req: Request, res: Response, next: NextFunct
             "message": "Unauthorized JWT",
             "LogError": error,
         })
-        console.log(decoded?.userRole);
+
 
         if (decoded?.userRole === undefined || decoded?.userRole !== 'admin') return res.status(403).json({
             "status": 403,
