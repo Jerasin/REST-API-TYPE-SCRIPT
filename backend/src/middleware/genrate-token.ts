@@ -4,6 +4,7 @@ import endpoint  from '../endpoints.config'
 dotenv.config();
 
 export const createToken = (email: string, user_role: string) => {
+    console.log("createToken",user_role);
     return jwt.sign(
         {
             email: email,

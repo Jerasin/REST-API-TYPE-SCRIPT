@@ -1,46 +1,62 @@
 import { Router, Request, Response } from 'express';
 import { productInstance } from "../../models/product";
-import {Op} from 'sequelize';
+import { Op } from 'sequelize';
+import { authorizationAdmin, authorization } from '../../middleware/authorize-jwt'
 const router = Router();
 
 //? GetAll
-router.get('/', async (req: Request, res: Response) => {
+router.get('/', authorization, async (req: Request, res: Response) => {
     try {
         const result = await productInstance.findAll();
-        res.json({ status: 200, result: result })
+        return res.json({ status: 200, result: result })
     }
     catch (err) {
-        res.json({ status: 404, result: "Not Found" })
+        return res.json({ status: 404, result: "Not Found" })
     }
 });
 
 //? Get By Keyword
-router.post('/serach', async (req: Request, res: Response) => {
+router.post('/serach', authorization, async (req: Request, res: Response) => {
     try {
-        const result = await productInstance.findAll({ where: {name: {[Op.like]: `%${req.body.name}%`}}});
-        res.json({ status: 200, result: result })
+        const { product_name, product_code } = req.body;
+
+        const result = await productInstance.findAll({ where: { product_name: { [Op.like]: `%${product_name}%` } } });
+        return res.json({ status: 200, result: result })
+
     }
     catch (err) {
-        res.json({ status: 404, result: "Not Found" })
+        return res.json({ status: 404, result: "Not Found" })
     }
 });
 
 
 //? Create Product
-router.post('/create', async (req: Request, res: Response) => {
-    console.log(req.body)
+router.post('/create', authorizationAdmin, async (req: Request, res: Response) => {
     try {
+        const { product_code, product_name } = req.body;
+
+        const getProductCode = await productInstance.findOne({ where: { product_code } });
+
+        if (getProductCode) {
+            return res.json({ status: 200, result: "Product Code Duplicate" })
+        }
+
+        const getProductName = await productInstance.findOne({ where: { product_name } });
+
+        if (getProductName) {
+            return res.json({ status: 200, result: "Product Name Duplicate" })
+        }
         const result = await productInstance.create(req.body);
-        res.json({ status: 200, result: result })
+        return res.json({ status: 200, result: result })
     }
     catch (err) {
-        res.json({ status: 404, result: err })
+        return res.json({ status: 404, result: err })
     }
 });
 
 
 //? Update Product
-router.put(`/update/:id`, async (req: Request, res: Response) => {
+router.put(`/update/:id`, authorizationAdmin, async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const result = await productInstance.findOne({ where: { id } });
@@ -48,18 +64,18 @@ router.put(`/update/:id`, async (req: Request, res: Response) => {
         if (!result) {
             return res.json({ status: 404, result: "Can not find existing record" });
         }
-
+        req.body.updatedAt = Date.now();
         const updatedRecord = await result.update(req.body);
-        return res.json({status: 200 , result: updatedRecord });
+        return res.json({ status: 200, result: updatedRecord });
     }
     catch (err) {
-    return res.json({ status: 404, result: err });
-}
-    
+        return res.json({ status: 404, result: err });
+    }
+
 });
 
-//? Delete Product
-router.delete(`/delete/:id`, async (req: Request, res: Response) => {
+//? Delete Product Role Admin
+router.delete(`/delete/:id`, authorizationAdmin, async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
         const result = await productInstance.findOne({ where: { id } });
@@ -68,13 +84,13 @@ router.delete(`/delete/:id`, async (req: Request, res: Response) => {
             return res.json({ status: 404, result: "Can not find existing record" });
         }
 
-        const deletedRecord = await result.destroy(req.body);
-        return res.json({status: 200 , result: deletedRecord });
+        const deletedRecord = await result.destroy();
+        return res.json({ status: 200, result: deletedRecord });
     }
     catch (err) {
-    return res.json({ status: 404, result: err });
-}
-    
+        return res.json({ status: 404, result: err });
+    }
+
 });
 
 export default router;

@@ -1,44 +1,64 @@
-import { DataTypes, Model } from 'sequelize';
+import { DataTypes, Model , Optional } from 'sequelize';
 import sequelize from 'sequelize/types/lib/sequelize';
 import db from '../config/db.config'
-interface userSchema {
+
+interface saleOrderSchema {
     id: number,
-    email: string,
-    password: string,
-    user_role: string,
+    saleOrderId: number,
+    product_name: string,
+    qty: string,
+    price: string,
+    doc_status: string,
+    createdBy: string,
     updatedBy: string,
     createdAt: Date,
     updatedAt: Date,
 }
 
-export class userInstance extends Model<userSchema> {
+interface saleOrderCreationAttributes extends Optional<saleOrderSchema, "id"> {}
+
+export class saleOrderInstance extends Model<saleOrderSchema,saleOrderCreationAttributes> {
 
     public id!: number;
-    public email!: string;
-    public password!: string;
-    public user_role!: string;
+    public saleOrderId!: number;
+    public product_name!: string;
+    public qty!: number;
+    public price!: number;
+    public doc_status!: string;
+    public createdBy!: string;
     public updatedBy!: string;
     public createdAt!: Date;
     public updatedAt!: Date;
 }
 
-userInstance.init(
+saleOrderInstance.init(
     {
         id: {
             type: DataTypes.INTEGER.UNSIGNED,
             autoIncrement: true,
             primaryKey: true,
         },
-        email: {
-            type: DataTypes.STRING,
-            unique: true,
+        saleOrderId: {
+            type: DataTypes.INTEGER.UNSIGNED,
             allowNull: false,
         },
-        user_role: {
+        product_name: {
             type: DataTypes.STRING,
             allowNull: false,
         },
-        password: {
+        qty: {
+            type: DataTypes.INTEGER.UNSIGNED,
+            allowNull: false,
+        },
+        price: {
+            type: DataTypes.FLOAT,
+            allowNull: false,
+        },
+        doc_status: {
+            type: DataTypes.STRING,
+            allowNull: false,
+        },
+        createdBy: {
             type: DataTypes.STRING,
             allowNull: false,
         },
@@ -59,7 +79,7 @@ userInstance.init(
     },
     {
         sequelize: db,
-        tableName: "user_info",
+        tableName: "saleorder",
         updatedAt: false,
     }
 );

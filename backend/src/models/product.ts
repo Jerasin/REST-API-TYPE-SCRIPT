@@ -1,17 +1,30 @@
-import {DataTypes,Model} from 'sequelize';
+import { DataTypes, Model } from 'sequelize';
 import sequelize from 'sequelize/types/lib/sequelize';
 import db from '../config/db.config'
 interface productSchema {
     id: number,
-    name: string,
+    product_code: number,
+    product_name: string,
     description: string,
     price: number,
+    createdBy: string,
+    updatedBy: string,
     createdAt: Date,
     updatedAt: Date,
 }
 
 
-export class productInstance extends Model<productSchema> {}
+export class productInstance extends Model<productSchema> {
+    public id!: number;
+    public product_code!: number;
+    public product_name!: string;
+    public description!: string;
+    public price!: number;
+    public createdBy!: string;
+    public updatedBy!: string;
+    public createdAt!: Date;
+    public updatedAt!: Date;
+}
 
 productInstance.init(
     {
@@ -20,32 +33,46 @@ productInstance.init(
             autoIncrement: true,
             primaryKey: true,
         },
-        name:{
-            type: new DataTypes.STRING(128),
+        product_code: {
+            type: DataTypes.INTEGER.UNSIGNED,
             unique: true,
             allowNull: false,
         },
-        description:{
-            type: new DataTypes.STRING(128),
+        product_name: {
+            type: DataTypes.STRING,
+            unique: true,
             allowNull: false,
         },
-        price:{
-            type: new DataTypes.STRING(128),
+        description: {
+            type: DataTypes.TEXT,
+            allowNull: true,
+        },
+        price: {
+            type: DataTypes.FLOAT,
             allowNull: false,
         },
-        createdAt:{
-            type: new DataTypes.DATE,
+        createdBy: {
+            type: DataTypes.STRING,
             allowNull: false,
         },
-        updatedAt:{
-            type: new DataTypes.DATE,
+        updatedBy: {
+            type: DataTypes.STRING,
+            allowNull: true,
+        },
+        createdAt: {
+            type: DataTypes.DATEONLY,
             allowNull: false,
         },
-        
+        updatedAt: {
+            type: DataTypes.DATEONLY,
+            allowNull: true,
+        },
+
 
     },
     {
-        sequelize:db,
-        tableName: "product"
+        sequelize: db,
+        tableName: "product",
+        updatedAt: false,
     }
 );
